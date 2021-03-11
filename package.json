@@ -17,6 +17,7 @@
     "runit": "yarn ui && node ./dist/index.js",
     "prettier:write": "yarn prettier -w ./src ./score-keeper/src/",
     "heroku-postbuild": "cd score-keeper && yarn && yarn run build && cd .. && yarn copy:ui",
+    "build": "yarn tsc -b",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
