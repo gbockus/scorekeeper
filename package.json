@@ -1,0 +1,50 @@
+{
+  "name": "scorekeeper",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "repository": "https://github.com/gbockus/scorekeeper.git",
+  "author": "Gordon Bockus <gordon.bockus@wagion.io>",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 15.4",
+    "yarn": ">= 1.22"
+  },
+  "scripts": {
+    "build:ui": "rimraf ./dist/build && cd score-keeper && yarn build",
+    "copy:ui": "cp -ipR ./score-keeper/build ./dist/",
+    "build:server": "yarn tsc -b",
+    "build": "yarn build:ui && yarn build:server",
+    "ui": "yarn build:ui && yarn copy:ui",
+    "runit": "yarn ui && node ./dist/index.js",
+    "prettier:write": "yarn prettier -w ./src ./score-keeper/src/",
+    "start": "node ./dist/index.js"
+  },
+  "dependencies": {
+    "@types/koa": "^2.13.1",
+    "@types/koa-bodyparser": "^4.3.0",
+    "async-redis": "^1.1.7",
+    "http-status": "^1.5.0",
+    "koa": "^2.13.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-cors": "^0.0.16",
+    "koa-easy-ws": "^1.3.0",
+    "koa-logger": "^3.2.1",
+    "koa-mount": "^4.0.0",
+    "koa-router": "^10.0.0",
+    "koa-static": "^5.0.0",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.2.3",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/async-redis": "^1.1.1",
+    "@types/koa-cors": "^0.0.0",
+    "@types/koa-logger": "^3.1.1",
+    "@types/koa-mount": "^4.0.0",
+    "@types/koa-router": "^7.4.1",
+    "@types/koa-static": "^4.0.1",
+    "@types/uuid": "^8.3.0",
+    "ts-node-dev": "^1.1.6"
+  }
+}
