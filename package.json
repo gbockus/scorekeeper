@@ -10,7 +10,7 @@
     "yarn": ">= 1.22"
   },
   "scripts": {
-    "build:ui": "rimraf ./dist/build && cd score-keeper && yarn build && copy:ui",
+    "build:ui": "rimraf ./dist/build && cd score-keeper && yarn build",
     "copy:ui": "cp -pR score-keeper/build dist/",
     "build:server": "yarn tsc -b",
     "ui": "yarn build:ui && yarn copy:ui",
