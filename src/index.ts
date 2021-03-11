@@ -19,7 +19,7 @@ const app = new Koa();
 
 //These are the new change
 const static_pages = new Koa();
-static_pages.use(serve(__dirname + '../score-keeper/build')); //serve the build directory
+static_pages.use(serve(__dirname + '/build')); //serve the build directory
 app.use(mount('/', static_pages));
 
 const PORT = process.env.PORT || 3000;

@@ -16,7 +16,6 @@
     "ui": "yarn build:ui && yarn copy:ui",
     "runit": "yarn ui && node ./dist/index.js",
     "prettier:write": "yarn prettier -w ./src ./score-keeper/src/",
-    "build": "yarn tsc -b & cd score-keeper && yarn && yarn run build",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
