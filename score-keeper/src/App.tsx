@@ -3,15 +3,15 @@ import {
     BrowserRouter as Router,
     Switch,
     Route,
+    Redirect,
     NavLink,
 } from 'react-router-dom';
 import './App.css';
 import NewBoard from './pages/NewBoard/NewBoard';
 import Boards from './pages/Boards/Boards';
-import Home from "./pages/Home/Home";
+import Home from './pages/Home/Home';
 
 function App() {
-
     return (
         <Router>
             <div className="app-ctr">
@@ -37,20 +37,29 @@ function App() {
                 {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
                 <Switch>
-                    <Route path="/new">
+                    <Route exact path="/new">
                         <NewBoard />
                     </Route>
                     <Route exact path="/boards/:key/">
                         <Boards />
                     </Route>
-                    <Route path="/boards/:key/:follow" component={() => <Boards follow={true} />} />
-                    <Route path="/">
+                    <Route
+                        exact
+                        path="/boards/:key/:follow"
+                        component={() => <Boards follow={true} />}
+                    />
+                    <Route exact path="/">
                         <Home />
                     </Route>
+                    <Redirect to="/" />
                 </Switch>
             </div>
         </Router>
     );
+}
+
+function NotFound() {
+    return <div>Not Found</div>;
 }
 
 export default App;

@@ -41,13 +41,13 @@ router.get('/matches', async (ctx, next) => {
     let keys = await client.keys('*');
     const matches = [];
     // @ts-ignore
-    for (let i = 0; i< keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
         const match = await client.get(keys[i]);
-        console.log('found match', {match});
+        console.log('found match', { match });
         matches.push(JSON.parse(String(match)));
     }
     ctx.status = HttpStatus.OK;
-    ctx.body = {matches};
+    ctx.body = { matches };
     await next();
 });
 
@@ -86,7 +86,7 @@ router.post('/scoreboard', async (ctx, next) => {
     console.log('match update', {
         match,
     });
-    const {key} = match;
+    const { key } = match;
     await client.set(key, JSON.stringify(match));
 
     ctx.status = HttpStatus.OK;
@@ -98,16 +98,16 @@ router.post('/scoreboard/:key/set', async (ctx, next) => {
     const key = ctx.params.key;
     console.log('set update', {
         setToUpdate,
-        key
+        key,
     });
 
     const matchStr = await client.get(key);
-    if(!matchStr) {
+    if (!matchStr) {
         ctx.status = HttpStatus.NOT_FOUND;
     } else {
         const match = JSON.parse(String(matchStr));
-        const {setNumber} = setToUpdate;
-        match.sets[setNumber - 1] = setToUpdate
+        const { setNumber } = setToUpdate;
+        match.sets[setNumber - 1] = setToUpdate;
         await client.set(key, JSON.stringify(match));
 
         ctx.status = HttpStatus.OK;

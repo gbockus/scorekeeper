@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import './Boards.css';
-import Score from "../Score/Score";
-import {API, Match} from "../../utils/API";
-import {Logger} from "../../utils/Logger";
+import Score from '../Score/Score';
+import { API, Match } from '../../utils/API';
+import { Logger } from '../../utils/Logger';
 
 interface ParamsKey {
     key: string;
@@ -13,7 +13,7 @@ interface ParamsKey {
 }
 
 export interface Set {
-    setNumber: number
+    setNumber: number;
     teamOneScore: number;
     teamTwoScore: number;
     complete: boolean;
@@ -26,32 +26,37 @@ function Boards(props: any) {
         key,
         follow,
         editable,
-        props
+        props,
     });
 
     const [dataKey] = useState(key as string);
     const [loaded, setLoaded] = useState(false);
-    const [match, setMatch] = useState<Match>({teamOneName: '', teamTwoName: '', sets: [], complete: false});
+    const [match, setMatch] = useState<Match>({
+        teamOneName: '',
+        teamTwoName: '',
+        sets: [],
+        complete: false,
+    });
 
     const loadMatch = async () => {
         Logger.log('loadMatch', {
-            dataKey
+            dataKey,
         });
         const match = await API.getMatch(dataKey);
         Logger.log('match response', {
-            match
+            match,
         });
         if (match.sets.length === 0) {
             const newSet = {
                 setNumber: 1,
                 teamOneScore: 0,
                 teamTwoScore: 0,
-                complete: false
+                complete: false,
             };
-            match.sets= [newSet];
+            match.sets = [newSet];
         }
         Logger.log('Got match', {
-            match
+            match,
         });
         setMatch(match);
     };
@@ -67,40 +72,63 @@ function Boards(props: any) {
 
     const addNewSet = async () => {
         Logger.log('AddNewSet');
-        const updatedMatch = {...match,
-          sets: [...match.sets, {
-            setNumber: match.sets.length + 1,
-            teamOneScore: 0,
-            teamTwoScore: 0,
-            complete: false
-        }]};
+        const updatedMatch = {
+            ...match,
+            sets: [
+                ...match.sets,
+                {
+                    setNumber: match.sets.length + 1,
+                    teamOneScore: 0,
+                    teamTwoScore: 0,
+                    complete: false,
+                },
+            ],
+        };
         setMatch(updatedMatch);
         await API.saveMatch(updatedMatch);
-    }
+    };
 
     const isEditable = () => {
-        return editable && !match.complete
-    }
+        return editable && !match.complete;
+    };
 
     const updateMatchComplete = async () => {
         const newValue = !match.complete;
         const updatedMatch = Object.assign({}, match);
         updatedMatch.sets.forEach((set) => {
-            set.complete = newValue
+            set.complete = newValue;
         });
         updatedMatch.complete = newValue;
         setMatch(updatedMatch);
         await API.saveMatch(updatedMatch);
-    }
+    };
 
     return (
         <div className="boards-page">
-            {match.sets.length !== 0 && <h2> Match {match.teamOneName} vs {match.teamTwoName}</h2>}
+            {match.sets.length !== 0 && (
+                <h2>
+                    {' '}
+                    Match {match.teamOneName} vs {match.teamTwoName}
+                </h2>
+            )}
             {match.sets.map((value, index) => {
-                  return <Score key={index} matchKey={key} set={value} teamOneName={match.teamOneName} teamTwoName={match.teamTwoName} edit={isEditable()} />
-              })}
-          {isEditable() && <button onClick={addNewSet}>Add Set</button>}
-          {editable && <button onClick={() => updateMatchComplete()}>{match.complete ? 'Undo Match Over': 'Match Over'}</button>}
+                return (
+                    <Score
+                        key={index}
+                        matchKey={key}
+                        set={value}
+                        teamOneName={match.teamOneName}
+                        teamTwoName={match.teamTwoName}
+                        edit={isEditable()}
+                    />
+                );
+            })}
+            {isEditable() && <button onClick={addNewSet}>Add Set</button>}
+            {editable && (
+                <button onClick={() => updateMatchComplete()}>
+                    {match.complete ? 'Undo Match Over' : 'Match Over'}
+                </button>
+            )}
         </div>
     );
 }

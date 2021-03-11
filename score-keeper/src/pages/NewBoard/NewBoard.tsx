@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Logger } from '../../utils/Logger';
-import {API} from "../../utils/API";
+import { API } from '../../utils/API';
 
 import './NewBoard.css';
 
@@ -23,7 +23,12 @@ function NewBoard() {
             return;
         }
 
-        const result = await API.createMatch({teamOneName: teamOne, teamTwoName: teamTwo, sets: [], complete: false});
+        const result = await API.createMatch({
+            teamOneName: teamOne,
+            teamTwoName: teamTwo,
+            sets: [],
+            complete: false,
+        });
         Logger.log('result', {
             result,
         });
