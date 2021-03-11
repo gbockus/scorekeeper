@@ -1,0 +1,71 @@
+.score-ctr {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.team-ctr {
+    text-align: center;
+    flex: 2;
+}
+
+.title-ctr {
+    width: 100%;
+    text-align: center;
+    border-top: 2px solid #282c34;
+    border-left: 2px solid #282c34;
+    border-right: 2px solid #282c34;
+}
+
+.title-ctr h3,
+.team-ctr h3 {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.title-ctr h3 {
+    color: #282c34;
+    background-color: white;
+}
+
+.title-ctr h3,
+.team-ctr h3 {
+    font-size: 3rem;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.total-ctr {
+    height: 10rem;
+    font-size: 8rem;
+    background-color: white;
+    border: 2px solid #282c34;
+}
+
+.button-ctr {
+    border-bottom: 2px solid #282c34;
+    border-left: 2px solid #282c34;
+    border-right: 2px solid #282c34;
+    padding: 1rem;
+}
+
+.button-ctr button:first-child {
+    margin-right: 2rem;
+    margin-left: 0;
+}
+
+.button-ctr button {
+    width: 3rem;
+    height: 3rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    font-size: 2rem;
+}
+
+.team-ctr h3 {
+    border-top: 2px solid #282c34;
+    border-left: 2px solid #282c34;
+    border-right: 2px solid #282c34;
+}
