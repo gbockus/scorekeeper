@@ -38,9 +38,7 @@ function Home() {
     if (!key) {
       return;
     }
-    const params = new URLSearchParams();
-    params.append('key', key);
-    history.push(`/boards/${key}`);
+    history.push(`/boards/${key}/follow`);
   }
 
   return (

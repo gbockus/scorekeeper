@@ -40,9 +40,10 @@ function App() {
                     <Route path="/new">
                         <NewBoard />
                     </Route>
-                    <Route path="/boards/:key">
+                    <Route exact path="/boards/:key/">
                         <Boards />
                     </Route>
+                    <Route path="/boards/:key/:follow" component={() => <Boards follow={true} />} />
                     <Route path="/">
                         <Home />
                     </Route>

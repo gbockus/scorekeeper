@@ -9,9 +9,13 @@ interface ScorePropsInterface {
   teamOneName: string;
   teamTwoName: string;
   set: Set;
+  edit: boolean;
 }
 
 function Score(props: ScorePropsInterface) {
+  Logger.log('Score props', {
+    props
+  });
   const [set, setSet] = useState(props.set);
 
   const updateSet = async function(teamNumber: number, increment: boolean) {
@@ -30,7 +34,7 @@ function Score(props: ScorePropsInterface) {
           newSet = {...set, teamOneScore: set.teamOneScore + update};
         }
     } else {
-      const newScore = set.teamOneScore + update
+      const newScore = set.teamTwoScore + update
       if (newScore >= 0) {
         newSet = {...set, teamTwoScore: set.teamTwoScore + update};
       }
@@ -48,7 +52,8 @@ function Score(props: ScorePropsInterface) {
         <div className="team-ctr">
           <h3>{props.teamOneName}</h3>
           <div className="total-ctr">{set.teamOneScore}</div>
-          {!props.set.complete &&
+          {
+            props.edit &&
           <div className="button-ctr">
             <button onClick={() => updateSet(1, true)}>+</button>
             <button onClick={() => updateSet(1, false)}>-</button>
@@ -59,7 +64,7 @@ function Score(props: ScorePropsInterface) {
           <h3>{props.teamTwoName}</h3>
           <div className="total-ctr">{set.teamTwoScore}</div>
           {
-            !props.set.complete &&
+            props.edit &&
             <div className="button-ctr">
               <button onClick={() => updateSet(2, true)}>+</button>
               <button onClick={() => updateSet(2, false)}>-</button>
