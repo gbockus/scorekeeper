@@ -11,12 +11,12 @@
   },
   "scripts": {
     "build:ui": "rimraf ./dist/build && cd score-keeper && yarn build && copy:ui",
-    "copy:ui": "cp -ipR ./score-keeper/build ./dist/",
+    "copy:ui": "cp -pR ./score-keeper/build ./dist/",
     "build:server": "yarn tsc -b",
     "ui": "yarn build:ui && yarn copy:ui",
     "runit": "yarn ui && node ./dist/index.js",
     "prettier:write": "yarn prettier -w ./src ./score-keeper/src/",
-    "build": "yarn build:ui",
+    "heroku-postbuild": "cd score-keeper && yarn && yarn run build && cd .. && yarn copy:ui",
     "start": "node ./dist/index.js"
   },
   "dependencies": {
