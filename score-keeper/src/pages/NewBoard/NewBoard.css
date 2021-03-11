@@ -1,0 +1,30 @@
+.new-page {
+    padding: 1rem;
+    background-color: #e3e3e3;
+    flex: 1;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 1rem;
+    margin-right: 0.5rem;
+}
+
+input[type='text'] {
+    height: 1rem;
+    margin-left: 1rem;
+}
+
+button {
+    height: 1.25rem;
+}
+
+.error {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    color: #cb2c2c;
+}
