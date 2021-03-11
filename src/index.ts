@@ -10,7 +10,7 @@ import HttpStatus from 'http-status';
 import { v4 as uuid } from 'uuid';
 import AsyncRedis from 'async-redis';
 
-const client = AsyncRedis.createClient();
+const client = AsyncRedis.createClient(process.env.REDIS_URL);
 
 client.on('error', (err) => {
     console.log('Redis client Error ' + err);

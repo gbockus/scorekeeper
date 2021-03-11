@@ -10,10 +10,9 @@
     "yarn": ">= 1.22"
   },
   "scripts": {
-    "build:ui": "rimraf ./dist/build && cd score-keeper && yarn build",
+    "build:ui": "rimraf ./dist/build && cd score-keeper && yarn build && cd .. && yarn copy:ui",
     "copy:ui": "cp -ipR ./score-keeper/build ./dist/",
     "build:server": "yarn tsc -b",
-    "build": "yarn build:ui && yarn build:server",
     "ui": "yarn build:ui && yarn copy:ui",
     "runit": "yarn ui && node ./dist/index.js",
     "prettier:write": "yarn prettier -w ./src ./score-keeper/src/",
