@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { useHistory } from 'react-router-dom';
 
 import './Home.css';
@@ -10,13 +10,13 @@ function Home() {
     const [loaded, setLoaded] = useState(false);
     const history = useHistory();
 
-    const getMatches = async () => {
+    const getMatches = useCallback(async () => {
         const result = await API.getMatches();
         Logger.log('Response from matches', {
             matches: result.matches,
         });
         setMatches(result.matches);
-    };
+    }, [setMatches]);
 
     useEffect(() => {
         Logger.log('useEffect', {

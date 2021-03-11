@@ -58,8 +58,4 @@ function App() {
     );
 }
 
-function NotFound() {
-    return <div>Not Found</div>;
-}
-
 export default App;
