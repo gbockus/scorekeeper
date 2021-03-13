@@ -7,6 +7,7 @@ export interface Match {
     key?: string;
     complete: boolean;
     sets: Set[];
+    createdAt?: number;
 }
 
 interface MatchResponse {

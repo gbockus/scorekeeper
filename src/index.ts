@@ -64,6 +64,7 @@ router.put('/scoreboard', async (ctx, next) => {
     const newScoreboard = ctx.request.body;
     const key = uuid();
     newScoreboard.key = key;
+    newScoreboard.createdAt = Math.floor(+new Date() / 1000);
     console.log('setting value', {
         newScoreboard,
     });
