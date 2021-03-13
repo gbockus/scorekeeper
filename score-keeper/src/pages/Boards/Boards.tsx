@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import './Boards.css';
@@ -37,6 +37,7 @@ function Boards(props: any) {
         sets: [],
         complete: false,
     });
+    const ws: any = useRef(null);
 
     const loadMatch = async () => {
         Logger.log('loadMatch', {
@@ -69,6 +70,29 @@ function Boards(props: any) {
             });
         }
     });
+
+    useEffect(() => {
+        if (!editable && !match.complete && ws.current === null) {
+            // ws.current = new WebSocket(`ws:localhost:3000/${key}`);
+            ws.current = new WebSocket(`ws:${window.location.host}`);
+            ws.current.onopen = () => console.log('ws opened');
+            ws.current.onclose = () => console.log('ws closed');
+
+            ws.current.onmessage = (e: any) => {
+                Logger.log('got message on ws');
+                const matchUpdate = JSON.parse(e.data);
+                Logger.log('ws match data', {
+                    matchUpdate,
+                });
+                setMatch(matchUpdate);
+            };
+
+            return () => {
+                Logger.log('closing web socket.');
+                ws.current.close();
+            };
+        }
+    }, [key, editable, match, setMatch]);
 
     const addNewSet = async () => {
         Logger.log('AddNewSet');
@@ -116,7 +140,7 @@ function Boards(props: any) {
                     <Score
                         key={index}
                         matchKey={key}
-                        set={value}
+                        setVal={match.sets[index]}
                         teamOneName={match.teamOneName}
                         teamTwoName={match.teamTwoName}
                         edit={isEditable()}

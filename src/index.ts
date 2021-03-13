@@ -5,7 +5,7 @@ import Logger from 'koa-logger';
 import serve from 'koa-static';
 import mount from 'koa-mount';
 import cors from 'koa-cors';
-import websocket from 'koa-easy-ws';
+import WebSocket from 'ws';
 import HttpStatus from 'http-status';
 import { v4 as uuid } from 'uuid';
 import AsyncRedis from 'async-redis';
@@ -17,7 +17,6 @@ client.on('error', (err) => {
 });
 const app = new Koa();
 
-//These are the new change
 const static_pages = new Koa();
 static_pages.use(serve(__dirname + '/build')); //serve the build directory
 app.use(mount('/', static_pages));
@@ -27,12 +26,6 @@ const PORT = process.env.PORT || 3000;
 app.use(BodyParser());
 app.use(Logger());
 app.use(cors());
-console.log('what', {
-    websocket,
-});
-
-// @ts-ignore
-app.use(websocket());
 
 const router = new Router();
 
@@ -108,36 +101,50 @@ router.post('/scoreboard/:key/set', async (ctx, next) => {
         const match = JSON.parse(String(matchStr));
         const { setNumber } = setToUpdate;
         match.sets[setNumber - 1] = setToUpdate;
+        const matchJson = JSON.stringify(match);
         await client.set(key, JSON.stringify(match));
 
         ctx.status = HttpStatus.OK;
+
+        try {
+            console.log('Number of clients: ', {
+                count: websocketServer.clients.size,
+            });
+            websocketServer.clients.forEach((client) => {
+                if (client.readyState === 1) {
+                    console.log('sending data to socket');
+                    client.send(matchJson);
+                }
+            });
+        } catch (err) {
+            console.log('Failed to send data to web sockets.  Not bailing. ', {
+                message: err.message,
+            });
+        }
     }
 
-    await next();
-});
-
-app.use(async (ctx, next) => {
-    console.log('in ws middleware');
-    if (ctx.ws) {
-        console.log('found a ws!');
-
-        const ws = await ctx.ws();
-        let count = 0;
-        setInterval(() => {
-            count++;
-            ws.send(JSON.stringify({ msg: `hello there ${count}` }));
-        }, 5000);
-        return ws.send(JSON.stringify({ msg: 'hello there' }));
-    }
     await next();
 });
 
 app.use(router.routes()).use(router.allowedMethods());
 
-app.listen(PORT, function () {
+const server = app.listen(PORT, function () {
     console.log(
         '==> 🌎  Listening on port %s. Visit http://localhost:%s/',
         PORT,
         PORT
     );
+});
+
+const websocketServer = new WebSocket.Server({ server });
+
+websocketServer.on('connection', (ws: any) => {
+    //connection is up, let's add a simple simple event
+    ws.on('message', (message: string) => {
+        //log the received message and send it back to the client
+        console.log('received: %s', message);
+        ws.send(`Hello, you sent -> ${message}`);
+    });
+
+    // ws.send('Hi there, I am a WebSocket server');
 });

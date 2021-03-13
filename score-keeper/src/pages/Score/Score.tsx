@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Set } from '../Boards/Boards';
 import './Score.css';
 import { API } from '../../utils/API';
@@ -8,7 +8,7 @@ interface ScorePropsInterface {
     matchKey: string;
     teamOneName: string;
     teamTwoName: string;
-    set: Set;
+    setVal: Set;
     edit: boolean;
 }
 
@@ -16,7 +16,18 @@ function Score(props: ScorePropsInterface) {
     Logger.log('Score props', {
         props,
     });
-    const [set, setSet] = useState(props.set);
+    // const {setVal} = props;
+    const [set, setSet] = useState({
+        setNumber: 0,
+        teamOneScore: 0,
+        teamTwoScore: 0,
+        complete: true,
+    });
+
+    useEffect(() => {
+        const { setVal } = props;
+        setSet(setVal);
+    }, [setSet, props]);
 
     const updateSet = async function (teamNumber: number, increment: boolean) {
         Logger.log('updateSet', { teamNumber, increment });

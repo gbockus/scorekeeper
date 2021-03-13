@@ -40,7 +40,7 @@ function App() {
                     <Route exact path="/new">
                         <NewBoard />
                     </Route>
-                    <Route exact path="/boards/:key/">
+                    <Route exact path="/boards/:key">
                         <Boards />
                     </Route>
                     <Route
