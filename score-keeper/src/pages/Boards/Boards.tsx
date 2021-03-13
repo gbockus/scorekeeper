@@ -120,7 +120,9 @@ function Boards(props: any) {
 
     const updateMatchComplete = async () => {
         const newValue = !match.complete;
-        const updatedMatch = Object.assign({}, match);
+        const currentMatch = await API.getMatch(dataKey);
+
+        const updatedMatch = Object.assign({}, currentMatch);
         updatedMatch.sets.forEach((set) => {
             set.complete = newValue;
         });
