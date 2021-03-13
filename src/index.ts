@@ -9,6 +9,7 @@ import WebSocket from 'ws';
 import HttpStatus from 'http-status';
 import { v4 as uuid } from 'uuid';
 import AsyncRedis from 'async-redis';
+import send from "koa-send";
 
 const client = AsyncRedis.createClient(process.env.REDIS_URL);
 
@@ -28,6 +29,20 @@ app.use(Logger());
 app.use(cors());
 
 const router = new Router();
+
+if (process.env.NODE_ENV === 'production') {
+    const REACT_ROUTES = [
+        '/boards',
+        '/boards/:key',
+        '/boards/:key/:follow',
+        '/new'
+    ];
+    // Handle React routing, return all requests to React app
+    router.get(REACT_ROUTES, async (ctx, next) => {
+        console.log('React route found.');
+        await send(ctx, 'dist/build/index.html');
+    });
+}
 
 // matches
 router.get('/matches', async (ctx, next) => {
@@ -80,11 +95,32 @@ router.post('/scoreboard', async (ctx, next) => {
         match,
     });
     const { key } = match;
-    await client.set(key, JSON.stringify(match));
+    const matchJson = JSON.stringify(match);
+    await client.set(key, matchJson);
 
     ctx.status = HttpStatus.OK;
+    await sendWebsocketMatchInfo(matchJson);
+
     await next();
 });
+
+const sendWebsocketMatchInfo = (matchJson) => {
+    try {
+        console.log('Number of clients: ', {
+            count: websocketServer.clients.size,
+        });
+        websocketServer.clients.forEach((client) => {
+            if (client.readyState === 1) {
+                console.log('sending data to socket');
+                client.send(matchJson);
+            }
+        });
+    } catch (err) {
+        console.log('Failed to send data to web sockets.  Not bailing. ', {
+            message: err.message,
+        });
+    }
+}
 
 router.post('/scoreboard/:key/set', async (ctx, next) => {
     const setToUpdate = ctx.request.body;
@@ -106,21 +142,7 @@ router.post('/scoreboard/:key/set', async (ctx, next) => {
 
         ctx.status = HttpStatus.OK;
 
-        try {
-            console.log('Number of clients: ', {
-                count: websocketServer.clients.size,
-            });
-            websocketServer.clients.forEach((client) => {
-                if (client.readyState === 1) {
-                    console.log('sending data to socket');
-                    client.send(matchJson);
-                }
-            });
-        } catch (err) {
-            console.log('Failed to send data to web sockets.  Not bailing. ', {
-                message: err.message,
-            });
-        }
+        await sendWebsocketMatchInfo(matchJson);
     }
 
     await next();
