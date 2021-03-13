@@ -15,6 +15,13 @@ function Home() {
         Logger.log('Response from matches', {
             matches: result.matches,
         });
+        result.matches.sort((a: Match, b: Match) => {
+            if (a.createdAt && b.createdAt) {
+                return a.createdAt - b.createdAt ;
+            }
+            return 0;
+        });
+        
         setMatches(result.matches);
     }, [setMatches]);
 
