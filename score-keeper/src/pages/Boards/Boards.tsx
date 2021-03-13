@@ -97,12 +97,13 @@ function Boards(props: any) {
 
     const addNewSet = async () => {
         Logger.log('AddNewSet');
+        const currentMatch = await API.getMatch(dataKey);
         const updatedMatch = {
-            ...match,
+            ...currentMatch,
             sets: [
-                ...match.sets,
+                ...currentMatch.sets,
                 {
-                    setNumber: match.sets.length + 1,
+                    setNumber: currentMatch.sets.length + 1,
                     teamOneScore: 0,
                     teamTwoScore: 0,
                     complete: false,
