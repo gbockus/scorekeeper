@@ -74,7 +74,8 @@ function Boards(props: any) {
     useEffect(() => {
         if (!editable && !match.complete && ws.current === null) {
             // ws.current = new WebSocket(`ws:localhost:3000/${key}`);
-            ws.current = new WebSocket(`ws:${window.location.host}`);
+            const HOST = window.location.origin.replace(/^http/, 'ws')
+            ws.current = new WebSocket(HOST);
             ws.current.onopen = () => console.log('ws opened');
             ws.current.onclose = () => console.log('ws closed');
 
