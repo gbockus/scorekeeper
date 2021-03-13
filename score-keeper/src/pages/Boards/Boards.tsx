@@ -90,7 +90,7 @@ function Boards(props: any) {
 
             return () => {
                 Logger.log('closing web socket.');
-                ws.current.close();
+                // ws.current.close();
             };
         }
     }, [key, editable, match, setMatch]);
