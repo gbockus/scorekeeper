@@ -8,15 +8,12 @@ import cors from 'koa-cors';
 import WebSocket from 'ws';
 import HttpStatus from 'http-status';
 import { v4 as uuid } from 'uuid';
-import AsyncRedis from 'async-redis';
 import send from "koa-send";
+import {DAO} from './dao/DAO';
 
-const client = AsyncRedis.createClient(process.env.REDIS_URL);
 
-client.on('error', (err) => {
-    console.log('Redis client Error ' + err);
-});
 const app = new Koa();
+const dao = new DAO();
 
 const static_pages = new Koa();
 static_pages.use(serve(__dirname + '/build')); //serve the build directory
@@ -46,31 +43,35 @@ if (process.env.NODE_ENV === 'production') {
 
 // matches
 router.get('/matches', async (ctx, next) => {
-    let keys = await client.keys('*');
-    const matches = [];
-    // @ts-ignore
-    for (let i = 0; i < keys.length; i++) {
-        const match = await client.get(keys[i]);
-        console.log('found match', { match });
-        matches.push(JSON.parse(String(match)));
-    }
+   const matches = await dao.getMatches();
+    console.log('Matches', {matches});
     ctx.status = HttpStatus.OK;
     ctx.body = { matches };
     await next();
 });
 
+// matches
+router.get('/teams', async (ctx, next) => {
+    const teams = await dao.getTeams();
+    console.log('Teams', {teams});
+    ctx.status = HttpStatus.OK;
+    ctx.body = { teams };
+    await next();
+});
+
+router.put('/team', async (ctx, next) => {
+    const {name} = ctx.request.body;
+    await dao.createTeam(name);
+    ctx.status = HttpStatus.OK;
+    await next();
+});
+
 // scoreboard
 router.put('/scoreboard', async (ctx, next) => {
-    const newScoreboard = ctx.request.body;
-    const key = uuid();
-    newScoreboard.key = key;
-    newScoreboard.createdAt = Math.floor(+new Date() / 1000);
-    console.log('setting value', {
-        newScoreboard,
-    });
-    await client.set(key, JSON.stringify(newScoreboard));
+    const {teamOneId, teamTwoId} = ctx.request.body;
+    const newMatch = await dao.createScoreboard(teamOneId, teamTwoId);
     ctx.status = HttpStatus.OK;
-    ctx.body = { key };
+    ctx.body = { key: newMatch.key, matchId: newMatch.id };
     await next();
 });
 
@@ -79,14 +80,10 @@ router.get('/scoreboard', async (ctx, next) => {
     console.log('key', {
         key,
     });
-    const json = await client.get(key);
-    console.log('json', {
-        json,
-    });
-    const data = JSON.parse(String(json));
-    console.log('data', { data });
+    const match = await dao.getMatchByKey(key);
+    console.log('found match', {match});
     ctx.status = HttpStatus.OK;
-    ctx.body = json;
+    ctx.body = match;
     await next();
 });
 
@@ -97,11 +94,28 @@ router.post('/scoreboard', async (ctx, next) => {
     });
     const { key } = match;
     const matchJson = JSON.stringify(match);
-    await client.set(key, matchJson);
+    // await client.set(key, matchJson);
 
     ctx.status = HttpStatus.OK;
-    await sendWebsocketMatchInfo(matchJson);
+    // await sendWebsocketMatchInfo(matchJson);
+    await sendWebsocketMatchInfo({});
 
+    await next();
+});
+
+router.post('/scoreboard/addSet', async (ctx, next) => {
+    const {id} = ctx.request.body;
+    console.log('add set', {
+        id,
+    });
+    const match = await dao.addSet(id);
+    console.log('set added', match);
+    const matchJson = JSON.stringify(match);
+
+    ctx.status = HttpStatus.OK;
+    ctx.body = match;
+
+    await sendWebsocketMatchInfo(matchJson);
     await next();
 });
 
@@ -123,28 +137,43 @@ const sendWebsocketMatchInfo = (matchJson) => {
     }
 }
 
-router.post('/scoreboard/:key/set', async (ctx, next) => {
-    const setToUpdate = ctx.request.body;
-    const key = ctx.params.key;
+router.post('/scoreboard/set/:id', async (ctx, next) => {
+    const {teamOneScore, teamTwoScore} = ctx.request.body;
+    const id: number = Number(ctx.params.id);
     console.log('set update', {
-        setToUpdate,
-        key,
+        id,
+        teamOneScore,
+        teamTwoScore
     });
 
-    const matchStr = await client.get(key);
-    if (!matchStr) {
+    // const matchStr = await client.get(key);
+    const match = dao.updateSetScore(id, teamOneScore, teamTwoScore);
+    if (!match) {
         ctx.status = HttpStatus.NOT_FOUND;
     } else {
-        const match = JSON.parse(String(matchStr));
-        const { setNumber } = setToUpdate;
-        match.sets[setNumber - 1] = setToUpdate;
-        const matchJson = JSON.stringify(match);
-        await client.set(key, JSON.stringify(match));
-
         ctx.status = HttpStatus.OK;
-
+        const matchJson = JSON.stringify(match);
         await sendWebsocketMatchInfo(matchJson);
     }
+
+    await next();
+});
+
+router.post('/match/:id/complete', async (ctx, next) => {
+    const {complete} = ctx.request.body;
+    const id: number = Number(ctx.params.id);
+    console.log('set match complete', {
+        id,
+        complete
+    });
+
+    // const matchStr = await client.get(key);
+    const match = await dao.updateMatchComplete(id, complete);
+    ctx.status = HttpStatus.OK;
+    console.log('result of update', match);
+    ctx.body = match;
+    const matchJson = JSON.stringify(match);
+    await sendWebsocketMatchInfo(matchJson);
 
     await next();
 });

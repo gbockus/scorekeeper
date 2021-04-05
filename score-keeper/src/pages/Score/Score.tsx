@@ -16,8 +16,8 @@ function Score(props: ScorePropsInterface) {
     Logger.log('Score props', {
         props,
     });
-    // const {setVal} = props;
     const [set, setSet] = useState({
+        id: 0,
         setNumber: 0,
         teamOneScore: 0,
         teamTwoScore: 0,
@@ -53,7 +53,7 @@ function Score(props: ScorePropsInterface) {
 
         if (newSet !== null) {
             setSet(newSet);
-            await API.updateSet(props.matchKey, newSet);
+            await API.updateSet(set.id, newSet.teamOneScore, newSet.teamTwoScore);
         }
     };
 
@@ -64,23 +64,26 @@ function Score(props: ScorePropsInterface) {
             </div>
             <div className="team-ctr">
                 <h3>{props.teamOneName}</h3>
-                <div className="total-ctr">{set.teamOneScore}</div>
-                {props.edit && (
-                    <div className="button-ctr">
-                        <button onClick={() => updateSet(1, true)}>+</button>
-                        <button onClick={() => updateSet(1, false)}>-</button>
-                    </div>
-                )}
+                <div className="total-ctr">
+                    {set.teamOneScore}
+                    {props.edit && (
+                      <div className="button-ctr">
+                          <div className="reduce" onClick={() => updateSet(1, false)}>-</div>
+                          <div className="increase" onClick={() => updateSet(1, true)}>+</div>
+                      </div>
+                    )}
+                </div>
             </div>
             <div className="team-ctr">
                 <h3>{props.teamTwoName}</h3>
-                <div className="total-ctr">{set.teamTwoScore}</div>
-                {props.edit && (
-                    <div className="button-ctr">
-                        <button onClick={() => updateSet(2, true)}>+</button>
-                        <button onClick={() => updateSet(2, false)}>-</button>
-                    </div>
-                )}
+                <div className="total-ctr">{set.teamTwoScore}
+                    {props.edit && (
+                      <div className="button-ctr">
+                          <div className="reduce" onClick={() => updateSet(2, false)}>-</div>
+                          <div className="increase" onClick={() => updateSet(2, true)}>+</div>
+                      </div>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -13,6 +13,7 @@ interface ParamsKey {
 }
 
 export interface Set {
+    id: number;
     setNumber: number;
     teamOneScore: number;
     teamTwoScore: number;
@@ -32,8 +33,8 @@ function Boards(props: any) {
     const [dataKey] = useState(key as string);
     const [loaded, setLoaded] = useState(false);
     const [match, setMatch] = useState<Match>({
-        teamOneName: '',
-        teamTwoName: '',
+        id: 0,
+        teams: [{name: ''}, {name: ''}],
         sets: [],
         complete: false,
     });
@@ -47,18 +48,7 @@ function Boards(props: any) {
         Logger.log('match response', {
             match,
         });
-        if (match.sets.length === 0) {
-            const newSet = {
-                setNumber: 1,
-                teamOneScore: 0,
-                teamTwoScore: 0,
-                complete: false,
-            };
-            match.sets = [newSet];
-        }
-        Logger.log('Got match', {
-            match,
-        });
+
         setMatch(match);
     };
 
@@ -96,22 +86,10 @@ function Boards(props: any) {
     }, [key, editable, match, setMatch]);
 
     const addNewSet = async () => {
-        Logger.log('AddNewSet');
-        const currentMatch = await API.getMatch(dataKey);
-        const updatedMatch = {
-            ...currentMatch,
-            sets: [
-                ...currentMatch.sets,
-                {
-                    setNumber: currentMatch.sets.length + 1,
-                    teamOneScore: 0,
-                    teamTwoScore: 0,
-                    complete: false,
-                },
-            ],
-        };
+        Logger.log('AddNewSet', {id: match.id});
+
+        const updatedMatch = await API.addSet(match.id);
         setMatch(updatedMatch);
-        await API.saveMatch(updatedMatch);
     };
 
     const isEditable = () => {
@@ -120,23 +98,19 @@ function Boards(props: any) {
 
     const updateMatchComplete = async () => {
         const newValue = !match.complete;
-        const currentMatch = await API.getMatch(dataKey);
-
-        const updatedMatch = Object.assign({}, currentMatch);
-        updatedMatch.sets.forEach((set) => {
-            set.complete = newValue;
-        });
-        updatedMatch.complete = newValue;
+        const updatedMatch = await API.setMatchComplete(match.id, newValue);
         setMatch(updatedMatch);
-        await API.saveMatch(updatedMatch);
     };
 
+    console.log('match before render', {
+        match
+    });
     return (
         <div className="boards-page">
             {match.sets.length !== 0 && (
                 <h2>
                     {' '}
-                    Match {match.teamOneName} vs {match.teamTwoName}
+                    Match {match.teams[0].name} vs {match.teams[1].name}
                 </h2>
             )}
             {match.sets.map((value, index) => {
@@ -145,8 +119,8 @@ function Boards(props: any) {
                         key={index}
                         matchKey={key}
                         setVal={match.sets[index]}
-                        teamOneName={match.teamOneName}
-                        teamTwoName={match.teamTwoName}
+                        teamOneName={match.teams[0].name}
+                        teamTwoName={match.teams[1].name}
                         edit={isEditable()}
                     />
                 );

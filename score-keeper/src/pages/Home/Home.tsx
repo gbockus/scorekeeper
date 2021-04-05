@@ -15,13 +15,7 @@ function Home() {
         Logger.log('Response from matches', {
             matches: result.matches,
         });
-        result.matches.sort((a: Match, b: Match) => {
-            if (a.createdAt && b.createdAt) {
-                return a.createdAt - b.createdAt ;
-            }
-            return 0;
-        });
-        
+
         setMatches(result.matches);
     }, [setMatches]);
 
@@ -52,6 +46,7 @@ function Home() {
         <div className="home-page">
             {matches.length > 0 &&
                 matches.map((match, index) => {
+                    Logger.log('render match', {size: match.teams.length});
                     return (
                         <div
                             className={`match ${
@@ -59,7 +54,7 @@ function Home() {
                             }`}
                             key={index}
                         >
-                            {match.teamOneName} VS {match.teamTwoName}{' '}
+                            {match.teams[0].name} VS {match.teams[1].name}{' '}
                             <button
                                 id={match.key}
                                 onClick={(evt) => gotoBoard(match.key)}
